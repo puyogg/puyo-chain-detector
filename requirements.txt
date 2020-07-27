@@ -20,12 +20,9 @@ prompt-toolkit==3.0.5
 Pygments==2.6.1
 pyparsing==2.4.7
 python-dateutil==2.8.1
-pywin32==228
 pyzmq==19.0.1
 scipy==1.5.1
 six==1.15.0
-torch==1.5.1
-torchvision==0.6.1
 tornado==6.0.4
 traitlets==4.3.3
 wcwidth==0.2.5
