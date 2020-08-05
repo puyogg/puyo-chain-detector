@@ -1,6 +1,5 @@
 import numpy as np
 from skimage import measure
-from scipy import signal
 import time
 import math
 
@@ -12,7 +11,7 @@ GROUP_BONUS = np.array([0, 2, 3, 4, 5, 6, 7, 10])
 # Constants for simulator
 color_codes = np.array(['0', 'J', 'R', 'G', 'B', 'Y', 'P']) # Mask for converting field to code representation
 fallable_nums = np.array([1, 2, 3, 4, 5, 6])
-no_garbage = np.array([0, 0, 2, 3, 4, 5, 6]) # Mask for seeing the field without garbage
+no_garbage = np.array([0, 0, 2, 3, 4, 5, 6], dtype=np.int) # Mask for seeing the field without garbage
 PUYO_TYPE = {
     'NONE': 0,
     'GARBAGE': 1,
@@ -37,13 +36,17 @@ def _calculate_garbage_pops(field, color_pop_mask):
     garbage_to_clear = []
     for i, pos in enumerate(garbages):
         y, x = pos
-        if ((y > 1 and color_pop_mask[y - 1, x] == True) or (y < 12 and color_pop_mask[y + 1, x] == True) or (x > 0 and color_pop_mask[y, x - 1] == True) or (x < 6 and color_pop_mask[y, x + 1] == True)):
+        if ((y > 1 and color_pop_mask[y - 1, x] == True) or (y < 12 and color_pop_mask[y + 1, x] == True) or (x > 0 and color_pop_mask[y, x - 1] == True) or (x < 5 and color_pop_mask[y, x + 1] == True)):
             garbage_to_clear.append(i)
     return garbages[garbage_to_clear]
 
 def _analyze_pops(field: np.ndarray, puyo_to_pop=4):
+    # Don't include hidden row
+    valid_area = no_garbage[field]
+    valid_area[0, valid_area[0, :] > 1] = 0
+
     # Calculated connected components
-    labels = measure.label(no_garbage[field], background=0, connectivity=1)
+    labels = measure.label(valid_area, background=0, connectivity=1)
 
     # Groups that are big enough to pop
     groups, count = np.unique(labels[labels != 0], return_counts=True)
