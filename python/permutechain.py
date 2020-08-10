@@ -68,54 +68,56 @@ def get_all_chain_lengths(fields_to_try):
     result = [simulate_chain(field) for field in fields_to_try]
     return [step for field, step, score, damage in result]
 
-# # %% Set Field
-# field = np.array([[0, 0, 0, 0, 0, 1],
-#                 [0, 0, 0, 0, 0, 1],
-#                 [0, 0, 0, 0, 5, 1],
-#                 [0, 0, 0, 0, 1, 1],
-#                 [0, 0, 0, 0, 1, 1],
-#                 [0, 0, 0, 0, 1, 1],
-#                 [0, 0, 5, 0, 1, 1],
-#                 [0, 1, 5, 0, 3, 1],
-#                 [3, 5, 5, 0, 3, 1],
-#                 [3, 5, 5, 1, 1, 6],
-#                 [3, 2, 4, 5, 6, 6],
-#                 [3, 3, 2, 4, 5, 5],
-#                 [2, 2, 4, 4, 5, 6]], dtype=np.int)
+# %% Set Field
+field = np.array([[0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 5, 1],
+                [0, 0, 0, 0, 1, 1],
+                [0, 0, 0, 0, 1, 1],
+                [0, 0, 0, 0, 1, 1],
+                [0, 0, 5, 0, 1, 1],
+                [0, 1, 5, 0, 3, 1],
+                [3, 5, 5, 0, 3, 1],
+                [3, 5, 5, 1, 1, 6],
+                [3, 2, 4, 5, 6, 6],
+                [3, 3, 2, 4, 5, 5],
+                [2, 2, 4, 4, 5, 6]], dtype=np.int)
 
-# field = np.array([[0, 0, 0, 0, 0, 0],
-#                   [0, 0, 0, 0, 0, 0],
-#                   [0, 0, 0, 0, 0, 0],
-#                   [0, 0, 0, 0, 0, 0],
-#                   [0, 0, 0, 0, 0, 0],
-#                   [3, 0, 0, 0, 0, 0],
-#                   [4, 0, 0, 0, 0, 0],
-#                   [4, 0, 0, 0, 0, 1],
-#                   [2, 2, 0, 3, 1, 1],
-#                   [4, 4, 2, 1, 1, 6],
-#                   [3, 2, 4, 5, 6, 6],
-#                   [3, 3, 2, 4, 5, 5],
-#                   [2, 2, 4, 4, 5, 6]], dtype=np.int)
+field = np.array([[0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0],
+                  [3, 0, 0, 0, 0, 0],
+                  [4, 0, 0, 0, 0, 0],
+                  [4, 0, 0, 0, 0, 1],
+                  [2, 2, 0, 3, 1, 1],
+                  [4, 4, 2, 1, 1, 6],
+                  [3, 2, 4, 5, 6, 6],
+                  [3, 3, 2, 4, 5, 5],
+                  [2, 2, 4, 4, 5, 6]], dtype=np.int)
 
-# # %% Test has drop
-# has_drop = check_for_drops(field)
+# %% Test has drop
+has_drop = check_for_drops(field)
 
-# # %%
-# surface_inds = get_surface_inds(field)
-# print(surface_inds)
+# %%
+surface_inds = get_surface_inds(field)
+print(surface_inds)
 
-# # %%
-# colors_to_try = get_colors_to_try(field, surface_inds)
-# print(colors_to_try)
+# %%
+colors_to_try = get_colors_to_try(field, surface_inds)
+print(colors_to_try)
 
-# # %%
-# fields_to_try = _get_fields_to_try(field, surface_inds, colors_to_try)
-# print(fields_to_try)
+# %%
+fields_to_try = _get_fields_to_try(field, surface_inds, colors_to_try)
+print(fields_to_try)
 
-# # %%
-# fields_to_try, try_inds, try_colors = get_fields_to_try(field)
+# %%
+fields_to_try, try_inds, try_colors = get_fields_to_try(field)
 
-# # %%
-# lengths = get_all_chain_lengths(fields_to_try)
-# print(try_inds, try_colors, lengths)
+# %%
+lengths = get_all_chain_lengths(fields_to_try)
+print(try_inds, try_colors, lengths)
+
+
 # %%
