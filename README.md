@@ -1,34 +1,49 @@
 # Puyo Chain Detector
 A real-time overlay for showing trigger points in Puyo chains.
-<img src="example.png">
+<img src="info/example.png">
 
 ## Download
-Check out the [Releases Page](https://github.com/puyogg/puyo-chain-detector/releases) for download links. You'll want the zip file.
+[https://github.com/puyogg/puyo-chain-detector/releases](https://github.com/puyogg/puyo-chain-detector/releases)
 
 ## Setup
-First, run `setup.exe` to pick your capture method and capture device. The ID for your capture device can change if you change how it's connected to your computer, so you might have to run this again later.
+The Chain Detector uses computer vision to analyze the game screen, so it needs access to a live video feed. Here's two methods to get this working:
 
-<img src="setup.png">
+1. **Capture a DirectShow device (capture card)**. This is the most convenient method, and it should work with modern capture cards (e.g. Avermedia, Elgato HD60s or later). Older Elgatos probably won't work.
+2. **Pass an OBS scene/source as a virtual camera**. This is a workaround that can work with any capture card or the PC Puyo Puyo games. You have to remember to start the Virtualcam service every time you load OBS, but this also lets you use the tool to analyze other people's videos.
 
-Then run `Detector.exe`. If everything's fine, you'll see a glimpse of your current capture device so you can validate that you set the correct device ID. Then a green screen should appear:
+### Method 1: Capture DirectShow Device
+Run `setup.exe` to pick your capture method and capture device.
+<img src="info/setup.png" width="60%">
 
-<img src="green-screen-example.jpg">
+Select "DirectShow" as the capture mode. For the capture device, try out all the numbers in the list until your capture card shows up. If none of the numbers work, that means your device couldn't be detected, and you need to use Method 2 (virtual camera).
 
-You can Window Capture this in OBS and stretch it over your game screen. Then you need to Chroma Key it with a filter. My settings for this are:
+Click "Save settings" to save your capture mode and device id to a `settings.json` file.
+
+### Method 2: OBS Virtualcam
+Install the [OBS Virtualcam](https://obsproject.com/forum/resources/obs-virtualcam.949/) plugin for OBS Studio.
+
+You can now right-click on an OBS Scene or Source and add a Virtualcam as an Effect Filter. Click "Start" to start broadcasting the OBS source as a virtual webcam.
+<img src="info/virtualcam.jpg" width="80%">
+
+When you run `setup.exe`, select DirectShow as the capture method. The virtual camera should show up as new number in the device list.
+<img src="info/setup-virtualcam.jpg" width="60%">
+
+Click "Save settings" to save your capture mode and device id to a `settings.json` file.
+
+### Green Screen
+Once you have your settings saved, run `Detector.exe`. You should see a quick glimpse of your capture feed, and then it'll show a green screen.
+
+<img src="info/green-screen-example.jpg">
+
+Window Capture this in OBS and stretch it over your game screen. Then, apply a Chroma Key Filter. My settings for this are:
 
 * Similarity: 150
 * Smoothness: 80
 * Color Spill Reduction: 100
 * Opacity: 66
 
-
 ## PyInstaller commands
 Built under Python version 3.7.4
-
-### Chain Detector
-```bash
-pyinstaller main.py --exclude-module=jupyter --exclude-module=ipython --exclude-module=jedi --exclude-module=matplotlib --exclude-module=ipykernel --exclude-module=ipython-genutils --exclude-module=ipywidgets --exclude-module=notebook --hidden-import=scipy.special.cython_special --hidden-import=sklearn.neural_network --onefile --add-binary="venv/Lib/site-packages/cv2/opencv_videoio_ffmpeg430_64.dll:." --add-binary="venv/Lib/site-packages/sklearn/.libs/vcomp140.dll:."
-```
 
 ### Setup Tool
 ```bash
