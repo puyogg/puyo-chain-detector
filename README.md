@@ -1,5 +1,6 @@
 # Puyo Chain Detector
 A real-time overlay for showing trigger points in Puyo chains.
+
 <img src="info/example.png">
 
 ## Download
@@ -13,6 +14,7 @@ The Chain Detector uses computer vision to analyze the game screen, so it needs 
 
 ### Method 1: Capture DirectShow Device
 Run `setup.exe` to pick your capture method and capture device.
+
 <img src="info/setup.png" width="60%">
 
 Select "DirectShow" as the capture mode. For the capture device, try out all the numbers in the list until your capture card shows up. If none of the numbers work, that means your device couldn't be detected, and you need to use Method 2 (virtual camera).
@@ -23,9 +25,11 @@ Click "Save settings" to save your capture mode and device id to a `settings.jso
 Install the [OBS Virtualcam](https://obsproject.com/forum/resources/obs-virtualcam.949/) plugin for OBS Studio.
 
 You can now right-click on an OBS Scene or Source and add a Virtualcam as an Effect Filter. Click "Start" to start broadcasting the OBS source as a virtual webcam.
+
 <img src="info/virtualcam.jpg" width="80%">
 
 When you run `setup.exe`, select DirectShow as the capture method. The virtual camera should show up as new number in the device list.
+
 <img src="info/setup-virtualcam.jpg" width="60%">
 
 Click "Save settings" to save your capture mode and device id to a `settings.json` file.
