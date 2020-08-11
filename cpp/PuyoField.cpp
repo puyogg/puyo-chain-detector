@@ -88,6 +88,8 @@ PopData PuyoField::checkPops() {
 	PopColors popColors{};
 	PopPositions popPositions{};
 
+	m_bool.reset();
+
 	std::queue<Pos> checkQueue{};
 	// Find connected components
 	for (int64_t r = m_hrows; r < m_rows; ++r)
@@ -171,7 +173,7 @@ int64_t PuyoField::simulate()
 	//print();
 
 	auto [hasPops, popCounts, popColors, popPositions] = checkPops();
-	m_bool.reset();
+	//m_bool.reset();
 
 	//std::cout << std::endl;
 

@@ -41,7 +41,7 @@ FieldTracker::FieldTracker(int player, size_t historySize)
 	}
 }
 
-void FieldTracker::update(std::vector<cv::Rect>& fieldROI, cv::Mat& roiAnalysis)
+void FieldTracker::update(std::vector<cv::Rect>& fieldROI)
 {
 	// If fieldROI is empty, return. In the following call to getROI, FieldTracker
 	// will just give the last known ROI

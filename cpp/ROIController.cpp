@@ -44,8 +44,6 @@ std::vector<cv::Rect> ROIController::findFields(cv::Mat& frame, cv::Mat& roiAnal
     // Find contours
     cv::connectedComponentsWithStats(roiAnalysis, labels, stats, centroids);
     std::vector<cv::Rect> validFields{};
-    int maxY0 = m_player0.fieldMaxY();
-    int maxY1 = m_player1.fieldMaxY();
     for (int i = 0; i < stats.rows; ++i)
     {
         int x{ stats.at<int>(i, 0) };

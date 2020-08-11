@@ -68,21 +68,32 @@ void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Color, int64_t
 	for (auto& data : p0Data)
 	{
 		auto [r, c, color, length] = data;
-		cv::Rect roi = m_p0ROIs[r * 6 + c];
-		cv::Mat cursor = m_cursors[color];
-		cv::Mat number = m_numbers[length];
-		cursor.copyTo(m_cursorAlpha(roi));
-		number.copyTo(m_numberAlpha(roi));
+		if (length > m_countField.get(r, c))
+		{
+			cv::Rect roi = m_p0ROIs[r * 6 + c];
+			cv::Mat cursor = m_cursors[color];
+			cv::Mat number = m_numbers[length];
+			cursor.copyTo(m_cursorAlpha(roi));
+			number.copyTo(m_numberAlpha(roi));
+
+			m_countField.set(r, c, length);
+		}
 	}
 
+	m_countField.reset();
 	for (auto& data : p1Data)
 	{
 		auto [r, c, color, length] = data;
-		cv::Rect roi = m_p1ROIs[r * 6 + c];
-		cv::Mat cursor = m_cursors[color];
-		cv::Mat number = m_numbers[length];
-		cursor.copyTo(m_cursorAlpha(roi));
-		number.copyTo(m_numberAlpha(roi));
+		if (length > m_countField.get(r, c))
+		{
+			cv::Rect roi = m_p1ROIs[r * 6 + c];
+			cv::Mat cursor = m_cursors[color];
+			cv::Mat number = m_numbers[length];
+			cursor.copyTo(m_cursorAlpha(roi));
+			number.copyTo(m_numberAlpha(roi));
+
+			m_countField.set(r, c, length);
+		}
 	}
 
 	cv::Mat cursorMask;

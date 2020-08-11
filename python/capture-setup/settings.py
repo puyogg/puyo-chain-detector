@@ -13,6 +13,8 @@ def check_cameras(count = 10, capture_api = cv2.CAP_ANY):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 270)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
         ret, frame = cap.read()
+        if ret:
+            frame = cv2.resize(frame, (480, 270), 0, 0, cv2.INTER_LINEAR)
         devices.append((i, ret, frame))
 
     # # Return valid devices

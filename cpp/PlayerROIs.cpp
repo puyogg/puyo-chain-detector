@@ -11,7 +11,7 @@ PlayerROIs::PlayerROIs(int player)
 void PlayerROIs::update(std::vector<cv::Rect>& fieldROI, cv::Mat& roiAnalysis, cv::Mat& nextAnalysis, cv::Mat& scoreAnalysis)
 {
 	// Update the field
-	m_field.update(fieldROI, roiAnalysis);
+	m_field.update(fieldROI);
 
 	// Use the median field positions to decide on the positions of
 	// the Next Window and Score Region

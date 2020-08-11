@@ -11,7 +11,7 @@ class FieldTracker
 public:
 	FieldTracker(size_t historySize = 301);
 	FieldTracker(int player, size_t historySize = 301);
-	void update(std::vector<cv::Rect>& fieldROI, cv::Mat& roiAnalysis);
+	void update(std::vector<cv::Rect>& fieldROI);
 	cv::Rect& getROI();
 	cv::Rect getMedian();
 	int getMaxY();

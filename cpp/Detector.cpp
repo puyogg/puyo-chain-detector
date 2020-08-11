@@ -22,8 +22,11 @@ int main()
     std::string windowName{ "Puyo Chain Detector" };
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     cv::VideoCapture cap;
-    cap.open(0, cv::CAP_DSHOW);
+    //cap.open(0, cv::CAP_DSHOW);
     cap.open(settings["device_id"].asInt(), settings["mode"].asInt());
+
+    // Request the capture card to send its feed as 960x540.
+    // Some cards aren't able to do this though. So the image may have to be resized later on.
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, VIDEO_HEIGHT);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, VIDEO_WIDTH);
 
@@ -34,11 +37,22 @@ int main()
     }
 
     // Declare the mats the analysis will need.
+    cv::Mat input;
     cv::Mat frame;
     cv::Mat gray;
     cv::Mat roiAnalysis;
     cv::Mat nextAnalysis;
     cv::Mat scoreAnalysis;
+
+    // Grab a test frame. Is everything the right size?
+    cap >> frame;
+    bool resizeFrame{ false };
+
+    if (frame.cols != static_cast<int>(VIDEO_WIDTH) || frame.rows != static_cast<int>(VIDEO_HEIGHT))
+    {
+        std::cout << "Capture card wasn't able to provide 960x540 video. Turned on manual resizing.\n";
+        resizeFrame = true;
+    }
 
     // ROI Controller
     ROIController roiController;
@@ -47,8 +61,10 @@ int main()
     cv::dnn::Net net = cv::dnn::readNetFromONNX("puyo-mlp-gpu.onnx");
 
     // Player States
-    StateController player0{ 0, net };
-    StateController player1{ 1, net };
+    //bool tryIgnorePopping{ settings["try_ignore_popping"].asBool() }; // Try to show less glitchy outputs
+    bool tryIgnorePopping{ true };
+    StateController player0{ 0, net, tryIgnorePopping };
+    StateController player1{ 1, net, tryIgnorePopping };
 
     // Green Screen
     GreenScreen greenScreen;
@@ -56,11 +72,41 @@ int main()
     // FPS Tracker
     FPS fps;
 
+    // Show the captured feed to validate the feed
+    for (int i = 0; i < 120; i++)
+    {
+        cap >> input;
+        cv::imshow(windowName, input);
+
+        char c = cv::waitKey(1);
+        if (c == 27)
+        {
+            break;
+        }
+        else if (cv::getWindowProperty(windowName, cv::WND_PROP_VISIBLE) < 1)
+        {
+            break;
+        }
+    }
+
     while (true)
     {
         // Get video stream
-        cap >> frame;
-        if (frame.empty()) break;
+        cap >> input;
+        if (input.empty())
+        {
+            std::cout << "Input data stream was empty. Aborting.\n";
+            break;
+        }
+
+        if (resizeFrame)
+        {
+            cv::resize(input, frame, cv::Size(static_cast<int>(VIDEO_WIDTH), static_cast<int>(VIDEO_HEIGHT)), 0, 0, cv::INTER_LINEAR);
+        }
+        else
+        {
+            frame = input;
+        }
 
         cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
         gray.copyTo(roiAnalysis);

@@ -2,12 +2,15 @@
 A real-time overlay for showing trigger points in Puyo chains.
 <img src="example.png">
 
+## Download
+Check out the [Releases Page](https://github.com/puyogg/puyo-chain-detector/releases) for download links. You'll want the zip file.
+
 ## Setup
 First, run `setup.exe` to pick your capture method and capture device. The ID for your capture device can change if you change how it's connected to your computer, so you might have to run this again later.
 
 <img src="setup.png">
 
-Then run `chaindetector.exe`. It'll take some time to load. If everything's fine, a green screen should appear:
+Then run `Detector.exe`. If everything's fine, you'll see a glimpse of your current capture device so you can validate that you set the correct device ID. Then a green screen should appear:
 
 <img src="green-screen-example.jpg">
 

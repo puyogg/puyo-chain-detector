@@ -1,9 +1,10 @@
 #include "StateController.h"
 
-StateController::StateController(int player, cv::dnn::Net& net)
+StateController::StateController(int player, cv::dnn::Net& net, bool tryIgnorePopping)
 {
 	m_player = player;
 	m_net = net;
+	m_tryIgnorePopping = tryIgnorePopping;
 
 	for (int y = 0; y < 12; y++)
 	{
@@ -16,8 +17,6 @@ StateController::StateController(int player, cv::dnn::Net& net)
 		}
 	}
 }
-
-
 
 void StateController::update(cv::Mat& frame, ROIController& roiController, bool reset)
 {
@@ -56,6 +55,15 @@ void StateController::update(cv::Mat& frame, ROIController& roiController, bool 
 		predictField(); // updates m_field
 		PuyoField puyoField;
 		puyoField.set(m_field);
+
+		// If m_tryIgnorePops was set to true via settings.json, check for pops first
+		if (m_tryIgnorePopping)
+		{
+			auto [hasPops, popCounts, popColors, popPositions] = puyoField.checkPops();
+			// Return, but don't clear away the previous analysis if there was one.
+			if (hasPops) return;
+		}
+
 		// Try out chains
 		m_cursorData = puyoField.searchForChains();
 		//std::cout << "Found " << m_cursorData.size() << " chains to try.\n";

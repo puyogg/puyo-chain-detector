@@ -28,6 +28,7 @@ public:
 	void set(std::vector<std::vector<Color>>& vector2d);
 	void copyTo(PuyoField& field);
 	int64_t simulate();
+	PopData checkPops();
 	std::vector<std::tuple<int64_t, int64_t, Color, int64_t>> searchForChains();
 	void print();
 
@@ -41,7 +42,6 @@ private:
 	int64_t m_chainLength;
 
 	void dropPuyos();
-	PopData checkPops();
 	void applyPops(PopPositions& positions);
 	void removeDrops();
 	std::vector<std::vector<int64_t>> surfaceInds();
