@@ -1,7 +1,9 @@
 #include "GreenScreen.h"
 
-GreenScreen::GreenScreen()
+GreenScreen::GreenScreen(bool debug)
 {
+	m_debug = debug;
+	
 	// Set screen to green
 	m_screen = cv::Mat(540, 960, CV_8UC4, cv::Scalar(0, 255, 0, 255));
 
@@ -60,7 +62,7 @@ cv::Mat& GreenScreen::screen()
 	return m_screen;
 }
 
-void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p0Data, std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p1Data)
+void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p0Data, std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p1Data, ROIController& roiController)
 {
 	m_countField.reset();
 	resetScreen(); // Reset Green Screen
@@ -102,6 +104,12 @@ void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Color, int64_t
 	cv::extractChannel(m_numberAlpha, numberMask, 3);
 	m_cursorAlpha.copyTo(m_screen, cursorMask);
 	m_numberAlpha.copyTo(m_screen, numberMask);
+
+	if (m_debug)
+	{
+		roiController.player(0).drawROIs(m_screen);
+		roiController.player(1).drawROIs(m_screen);
+	}
 }
 
 void GreenScreen::resetScreen()

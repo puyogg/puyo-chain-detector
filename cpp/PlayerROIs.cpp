@@ -23,7 +23,7 @@ void PlayerROIs::update(std::vector<cv::Rect>& fieldROI, cv::Mat& roiAnalysis, c
 
 void PlayerROIs::drawROIs(cv::Mat& frame)
 {
-	cv::Scalar color = (m_player == 0) ? cv::Scalar(0, 0, 255) : cv::Scalar(0, 255, 0);
+	cv::Scalar color = (m_player == 0) ? cv::Scalar(0, 0, 255) : cv::Scalar(255, 0, 0);
 
 	cv::rectangle(frame, m_field.getROI().tl(), m_field.getROI().br(), color, 2);
 

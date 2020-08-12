@@ -17,10 +17,13 @@ void ROIController::update(cv::Mat& frame, cv::Mat& roiAnalysis, cv::Mat& nextAn
     std::vector<cv::Rect> validFields = findFields(frame, roiAnalysis);
 
     // Threshold Next Window
-    cv::compare(nextAnalysis, 180, nextAnalysis, cv::CMP_GE);
+    //cv::compare(nextAnalysis, 180, nextAnalysis, cv::CMP_GE);
+    //cv::compare(nextAnalysis, 150, nextAnalysis, cv::CMP_GE);
+    //cv::compare(nextAnalysis, 90, nextAnalysis, cv::CMP_LE);
+    /*cv::adaptiveThreshold(nextAnalysis, nextAnalysis, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 5, 5);*/
 
     // Threshold Score Window
-    cv::compare(scoreAnalysis, 200, scoreAnalysis, cv::CMP_GT);
+    /*cv::compare(scoreAnalysis, 200, scoreAnalysis, cv::CMP_GT);*/
 
     // Send the ROIs to each player's tracker, and they'll each figure out if its valid or not
     m_player0.update(validFields, roiAnalysis, nextAnalysis, scoreAnalysis);

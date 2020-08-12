@@ -19,6 +19,10 @@ void NextTracker::update(cv::Rect& medianField, cv::Mat& nextAnalysis)
 	// Isolate the small parts of the next window to detect movement in
 	setTopBotROIs(nextROI);
 
+	// Apply adaptive threshold to the subregion of nextAnalysis
+	cv::Mat nextWindow = nextAnalysis(nextROI);
+	cv::adaptiveThreshold(nextWindow, nextWindow, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 5, 5);
+
 	// Crops
 	m_top = nextAnalysis(m_topRoi);
 	m_bot = nextAnalysis(m_botRoi);
@@ -47,7 +51,7 @@ void NextTracker::update(cv::Rect& medianField, cv::Mat& nextAnalysis)
 
 	if (!topMatch || !botMatch)
 	{
-		std::cout << "Sizes don't match.\n";
+		//std::cout << "Sizes don't match.\n";
 		m_top.copyTo(m_prevTop);
 		m_bot.copyTo(m_prevBot);
 		return;
@@ -110,32 +114,61 @@ cv::Rect NextTracker::nextROIFromField(cv::Rect& medianField)
 
 void NextTracker::setTopBotROIs(cv::Rect& nextROI)
 {
+	//if (m_player == 0)
+	//{
+	//	int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.08) };
+	//	int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.05) };
+	//	int topW{ static_cast<int>(nextROI.width * 0.5) };
+	//	int topH{ static_cast<int>(nextROI.height * 0.1) };
+	//	m_topRoi = cv::Rect(topX, topY, topW, topH);
+
+	//	int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.40) };
+	//	int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.80) };
+	//	int botW{ static_cast<int>(nextROI.width * 0.5) };
+	//	int botH{ static_cast<int>(nextROI.height * 0.1) };
+	//	m_botRoi = cv::Rect(botX, botY, botW, botH);
+	//}
+	//else if (m_player == 1)
+	//{
+	//	int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.92 - nextROI.width * 0.5) };
+	//	int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.05) };
+	//	int topW{ static_cast<int>(nextROI.width * 0.5) };
+	//	int topH{ static_cast<int>(nextROI.height * 0.1) };
+	//	m_topRoi = cv::Rect(topX, topY, topW, topH);
+
+	//	int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.05) };
+	//	int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.80) };
+	//	int botW{ static_cast<int>(nextROI.width * 0.5) };
+	//	int botH{ static_cast<int>(nextROI.height * 0.1) };
+	//	m_botRoi = cv::Rect(botX, botY, botW, botH);
+	//}
+
 	if (m_player == 0)
 	{
-		int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.08) };
-		int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.05) };
-		int topW{ static_cast<int>(nextROI.width * 0.5) };
-		int topH{ static_cast<int>(nextROI.height * 0.1) };
+		int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.16) };
+		int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.13) };
+		int topW{ static_cast<int>(nextROI.width * 0.36) };
+		int topH{ static_cast<int>(nextROI.height * 0.13) };
 		m_topRoi = cv::Rect(topX, topY, topW, topH);
 
-		int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.40) };
-		int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.80) };
-		int botW{ static_cast<int>(nextROI.width * 0.5) };
-		int botH{ static_cast<int>(nextROI.height * 0.1) };
+		int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.53) };
+		int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.75) };
+		int botW{ static_cast<int>(nextROI.width * 0.26) };
+		int botH{ static_cast<int>(nextROI.height * 0.09) };
 		m_botRoi = cv::Rect(botX, botY, botW, botH);
 	}
 	else if (m_player == 1)
 	{
-		int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.92 - nextROI.width * 0.5) };
-		int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.05) };
-		int topW{ static_cast<int>(nextROI.width * 0.5) };
-		int topH{ static_cast<int>(nextROI.height * 0.1) };
+		int topX{ static_cast<int>(nextROI.x + nextROI.width * 0.50) };
+		int topY{ static_cast<int>(nextROI.y + nextROI.height * 0.13) };
+		int topW{ static_cast<int>(nextROI.width * 0.36) };
+		int topH{ static_cast<int>(nextROI.height * 0.13) };
 		m_topRoi = cv::Rect(topX, topY, topW, topH);
 
-		int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.05) };
-		int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.80) };
-		int botW{ static_cast<int>(nextROI.width * 0.5) };
-		int botH{ static_cast<int>(nextROI.height * 0.1) };
+		int botX{ static_cast<int>(nextROI.x + nextROI.width * 0.23) };
+		int botY{ static_cast<int>(nextROI.y + nextROI.height * 0.75) };
+		int botW{ static_cast<int>(nextROI.width * 0.26) };
+		int botH{ static_cast<int>(nextROI.height * 0.09) };
 		m_botRoi = cv::Rect(botX, botY, botW, botH);
 	}
 }

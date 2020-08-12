@@ -36,7 +36,7 @@ void StateController::update(cv::Mat& frame, ROIController& roiController, bool 
 	if (player.scoreX().hasX())
 	{
 		// Clear cursor data
-		//std::cout << "Saw the X.\n";
+		//std::cout << "Player" << m_player << " saw the X.\n";
 		m_cursorData.clear();
 		return;
 	}
@@ -45,6 +45,7 @@ void StateController::update(cv::Mat& frame, ROIController& roiController, bool 
 	// This is when we should run the chain analyzers.
 	if (player.nextWindow().isMoving() && player.field().getROI().area() > 0)
 	{
+		//std::cout << m_player << ": Next moved!\n";
 		cv::Mat cropCharBG = frame(player.field().getROI());
 		cv::Mat resized;
 		cv::resize(cropCharBG, resized, cv::Size(200, 362), 0, 0, cv::INTER_LINEAR);

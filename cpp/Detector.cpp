@@ -41,8 +41,6 @@ int main()
     cv::Mat frame;
     cv::Mat gray;
     cv::Mat roiAnalysis;
-    cv::Mat nextAnalysis;
-    cv::Mat scoreAnalysis;
 
     // Grab a test frame. Is everything the right size?
     cap >> frame;
@@ -67,7 +65,7 @@ int main()
     StateController player1{ 1, net, tryIgnorePopping };
 
     // Green Screen
-    GreenScreen greenScreen;
+    GreenScreen greenScreen{ false };
 
     // FPS Tracker
     FPS fps;
@@ -110,23 +108,20 @@ int main()
 
         cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
         gray.copyTo(roiAnalysis);
-        gray.copyTo(nextAnalysis);
-        gray.copyTo(scoreAnalysis);
+        
+        // Check if the screen turned to black. Don't need to compute this over the whole image.
+        cv::Rect meanRect = cv::Rect(frame.cols / 4, frame.rows / 4, frame.cols / 2, frame.rows / 2);
+        cv::Scalar mean = cv::mean(gray(meanRect));
+        bool reset = mean.val[0] > 230 || mean.val[0] < 20;
 
         // Send frames to ROIController to update all the ROIs
-        roiController.update(frame, roiAnalysis, nextAnalysis, scoreAnalysis);
-
-        // Check if the screen turned to black
-        cv::Scalar mean = cv::mean(gray);
-        bool reset = mean.val[0] > 210 || mean.val[0] < 20;
+        roiController.update(frame, roiAnalysis, gray, gray);
 
         //// Send ROIs to StateControllers so they can predict the chains
         player0.update(frame, roiController, reset);
         player1.update(frame, roiController, reset);
 
-        //cv::Mat p0field = frame(roiController.player(0).field().getROI());
-        //cv::imshow(windowName, greenScreen.screen());
-        greenScreen.update(player0.cursorData(), player1.cursorData());
+        greenScreen.update(player0.cursorData(), player1.cursorData(), roiController);
         cv::imshow(windowName, greenScreen.screen());
 
         // Display Average FPS for each second

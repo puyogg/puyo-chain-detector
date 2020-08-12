@@ -21,6 +21,10 @@ void ScoreXTracker::update(cv::Rect& medianField, cv::Mat& scoreAnalysis)
 	cv::Rect scoreROI{ scoreROIFromField(medianField) };
 	m_scoreROI = scoreROI;
 
+	// Apply threshold to score region
+	cv::Mat scoreRegion = scoreAnalysis(scoreROI);
+	cv::compare(scoreRegion, 200, scoreRegion, cv::CMP_GT);
+
 	// The template matching wont work at different
 	// screen sizes unless I resize the score x...
 	double scaling = (double)medianField.width / P0_FIELD.width;
@@ -44,12 +48,11 @@ void ScoreXTracker::update(cv::Rect& medianField, cv::Mat& scoreAnalysis)
 	//std::cout << "Player " << m_player << " match value: " << maxVal << "\n";
 	if (newHeight == xTemplate.rows && newWidth == xTemplate.cols)
 	{
-		// Can afford to be strict if the game is running at full screen area.
-		m_hasX = maxVal > 0.90;
+		m_hasX = maxVal > 0.80;
 	}
 	else
 	{
-		m_hasX = maxVal > 0.80; // tested at 96% screen area
+		m_hasX = maxVal > 0.70; // tested at 96% screen area
 	}
 }
 
@@ -60,7 +63,7 @@ cv::Rect& ScoreXTracker::getROI()
 
 cv::Rect ScoreXTracker::scoreROIFromField(cv::Rect& medianField)
 {
-	int x{ static_cast<int>(medianField.x) };
+	/*int x{ static_cast<int>(medianField.x) };
 	int y{ static_cast<int>(medianField.y + medianField.height) };
 	int w{ static_cast<int>(medianField.width * 1.02) };
 	int h{ static_cast<int>(medianField.height / 11) };
@@ -69,6 +72,23 @@ cv::Rect ScoreXTracker::scoreROIFromField(cv::Rect& medianField)
 	{
 		x -= static_cast<int>(medianField.width * 0.02);
 	}
+	return cv::Rect(x, y, w, h);*/
+	int x{ static_cast<int>(medianField.x) };
+	int y{ static_cast<int>(medianField.y + medianField.height) };
+	int w{ static_cast<int>(medianField.width * 0.3) };
+	int h{ static_cast<int>(medianField.height / 12) };
+
+	if (m_player == 0)
+	{
+		x += static_cast<int>(medianField.width * 0.50);
+		y += static_cast<int>(medianField.height * 0.01);
+	}
+	else
+	{
+		x += static_cast<int>(medianField.width * 0.30);
+		y += static_cast<int>(medianField.height * 0.01);
+	}
+
 	return cv::Rect(x, y, w, h);
 }
 

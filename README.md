@@ -37,6 +37,12 @@ Click "Save settings" to save your capture mode and device id to a `settings.jso
 ### Green Screen
 Once you have your settings saved, run `Detector.exe`. You should see a quick glimpse of your capture feed, and then it'll show a green screen.
 
+## Potential setup errors
+
+* **The code execution cannot proceed because VCRUNTIME140_1.dll was not found. Reinstalling the program may fix the problem.**
+  
+  Download and install the x64 redistributable for Microsoft Visual C++ 2015/2017/2019: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+
 <img src="info/green-screen-example.jpg">
 
 Window Capture this in OBS and stretch it over your game screen. Then, apply a Chroma Key Filter. My settings for this are:
