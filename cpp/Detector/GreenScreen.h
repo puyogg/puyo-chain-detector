@@ -10,7 +10,7 @@ class GreenScreen
 public:
 	GreenScreen(bool debug = false);
 	cv::Mat& screen();
-	void update(std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p0Data, std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& p1Data, ROIController& roiController);
+	void update(std::vector<std::tuple<int64_t, int64_t, Chainsim::Color, int64_t>>& p0Data, std::vector<std::tuple<int64_t, int64_t, Chainsim::Color, int64_t>>& p1Data, ROIController& roiController);
 private:
 	bool m_debug;
 	CountField m_countField;

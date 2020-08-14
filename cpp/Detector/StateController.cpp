@@ -54,7 +54,7 @@ void StateController::update(cv::Mat& frame, ROIController& roiController, bool 
 		m_centerCrop = resized(cv::Rect(4, 1, 192, 360));
 		setCellMats();
 		predictField(); // updates m_field
-		PuyoField puyoField;
+		Chainsim::PuyoField puyoField;
 		puyoField.set(m_field);
 
 		// If m_tryIgnorePops was set to true via settings.json, check for pops first
@@ -105,7 +105,7 @@ std::vector<int64_t> StateController::field()
 	return m_field;
 }
 
-std::vector<std::tuple<int64_t, int64_t, Color, int64_t>>& StateController::cursorData()
+std::vector<std::tuple<int64_t, int64_t, Chainsim::Color, int64_t>>& StateController::cursorData()
 {
 	return m_cursorData;
 }
