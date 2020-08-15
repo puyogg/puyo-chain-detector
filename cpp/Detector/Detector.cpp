@@ -10,9 +10,38 @@
 #include "Constants.h"
 #include "StateController.h"
 #include "GreenScreen.h"
+#include "DeviceEnum.h"
+
+#ifdef _WIN32
+#include <objbase.h>
+#endif
 
 int main()
 {
+#ifdef _WIN32
+    // Initialize COM.
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to initialize COM apartment." << std::endl;
+        return 1;
+    }
+#endif
+
+    std::map<int, std::string> devices;
+    if (GetCaptureDevices(devices))
+    {
+        std::cout << "Available video capture devices:" << std::endl;
+        for (auto [num, device] : devices)
+        {
+            std::cout << num << ": " << device << std::endl;
+        }
+    }
+    else
+    {
+	    std::cout << "Error retrieving list of capture devices." << std::endl;
+    }
+	
     // Load settings from JSON file.
     std::ifstream settingsFile("settings.json", std::ifstream::binary);
     Json::Value settings;
