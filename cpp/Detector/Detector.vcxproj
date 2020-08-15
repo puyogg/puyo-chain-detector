@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="CountField.cpp" />
     <ClCompile Include="Detector.cpp" />
+    <ClCompile Include="DeviceEnum.cpp" />
     <ClCompile Include="FieldTracker.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="GreenScreen.cpp" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CountField.h" />
+    <ClInclude Include="DeviceEnum.h" />
     <ClInclude Include="FieldTracker.h" />
     <ClInclude Include="FPS.h" />
     <ClInclude Include="GreenScreen.h" />
