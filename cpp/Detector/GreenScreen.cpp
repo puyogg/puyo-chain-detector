@@ -5,7 +5,7 @@ GreenScreen::GreenScreen(bool debug)
 	m_debug = debug;
 	
 	// Set screen to green
-	m_screen = cv::Mat(540, 960, CV_8UC4, cv::Scalar(0, 255, 0, 255));
+	m_screen = cv::Mat(540, 960, CV_8UC4, cv::Scalar(255, 0, 0, 255));
 
 	// Set alpha layers
 	m_cursorAlpha = cv::Mat(540, 960, CV_8UC4, cv::Scalar(0, 0, 0, 0));
@@ -102,8 +102,8 @@ void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Chainsim::Colo
 	cv::Mat numberMask;
 	cv::extractChannel(m_cursorAlpha, cursorMask, 3);
 	cv::extractChannel(m_numberAlpha, numberMask, 3);
-	m_cursorAlpha.copyTo(m_screen, cursorMask);
 	m_numberAlpha.copyTo(m_screen, numberMask);
+	m_cursorAlpha.copyTo(m_screen, cursorMask);
 
 	if (m_debug)
 	{
@@ -114,7 +114,7 @@ void GreenScreen::update(std::vector<std::tuple<int64_t, int64_t, Chainsim::Colo
 
 void GreenScreen::resetScreen()
 {
-	m_screen.setTo(cv::Scalar(0, 255, 0, 255));
+	m_screen.setTo(cv::Scalar(255, 0, 0, 255));
 	m_cursorAlpha.setTo(cv::Scalar(0, 0, 0, 0));
 	m_numberAlpha.setTo(cv::Scalar(0, 0, 0, 0));
 }
