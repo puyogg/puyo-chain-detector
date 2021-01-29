@@ -17,10 +17,7 @@
 #include <fstream>
 
 QT_BEGIN_NAMESPACE
-namespace Ui
-{
-    class MainWindow;
-}
+namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -57,8 +54,7 @@ private:
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
 
-    struct PlayerData
-    {
+    struct PlayerData {
         int gameField_x;
         int gameField_y;
         int gameField_width;
