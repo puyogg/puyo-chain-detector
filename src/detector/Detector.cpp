@@ -1,14 +1,12 @@
 #include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
+//#include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include "Detector.hpp"
 #include <iostream>
 #include <string>
 
-void ChainDetector::Detector(int deviceID, int modeID)
+void ChainDetector::Detector(std::atomic<bool>& running, int deviceID, int modeID)
 {
-    std::string windowName{ "Puyo Chain Detector" };
-    cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     cv::VideoCapture cap;
 
     cap.open(deviceID, modeID);
@@ -28,25 +26,39 @@ void ChainDetector::Detector(int deviceID, int modeID)
     // Initialize the mats the analysis will need
     cv::Mat input;
 
-    while (true)
+    int interval = 0;
+    while (running)
     {
         cap >> input;
         if (input.empty())
         {
             std::cout << "Input data stream was empty. Aborting.\n";
+            running = false;
             break;
         }
 
-        cv::imshow(windowName, input);
+//        interval = (interval + 120 + 1) % 120;
+        interval++;
+        if (interval % 60 == 0)
+        {
+            std::cout << "Running..." << interval << '\n';
+        }
 
-        char c = cv::waitKey(1);
-        if (c == 27)
+        if (interval > 60 * 20)
         {
+            running = false;
             break;
         }
-        else if (cv::getWindowProperty(windowName, cv::WND_PROP_VISIBLE) < 1)
-        {
-            break;
-        }
+//        cv::imshow(windowName, input);
+
+//        char c = cv::waitKey(1);
+//        if (c == 27)
+//        {
+//            break;
+//        }
+//        else if (cv::getWindowProperty(windowName, cv::WND_PROP_VISIBLE) < 1)
+//        {
+//            break;
+//        }
     }
 }

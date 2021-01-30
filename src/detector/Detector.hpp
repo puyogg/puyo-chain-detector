@@ -1,8 +1,9 @@
 #pragma once
+#include <atomic>
 
 namespace ChainDetector
 {
 
-void Detector(int deviceID, int modeID);
+void Detector(std::atomic<bool>& running, int deviceID, int modeID);
 
 } // end namespace ChainDetector

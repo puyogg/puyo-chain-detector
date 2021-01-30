@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <QMessageBox>
+#include "detector/Detector.hpp"
+#include <thread>
+#include <atomic>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -246,4 +249,21 @@ void MainWindow::on_currentPlayer_currentIndexChanged(int index)
 //    std::cout << "Dropdown box index: " << index << std::endl;
     currentPlayer = index;
     setDataToFields(index);
+}
+
+void MainWindow::on_initializeDetector_clicked()
+{
+    // http://www.cplusplus.com/forum/general/190480/
+    int deviceID = ui->cameraValue->text().toInt();
+    int modeID = static_cast<int>(cv::CAP_ANY);
+    std::atomic<bool> running { true };
+    std::thread detectThread(ChainDetector::Detector, std::ref(running), deviceID, modeID);
+
+    while (running)
+    {
+        qApp->processEvents();
+    }
+
+    detectThread.join();
+    std::cout << "Finished detection thread.\n";
 }

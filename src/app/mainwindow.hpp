@@ -48,6 +48,8 @@ private slots:
 
     void on_saveSettings_clicked();
 
+    void on_initializeDetector_clicked();
+
 private:
     Ui::MainWindow *ui;
 
