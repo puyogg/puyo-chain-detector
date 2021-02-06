@@ -7,8 +7,10 @@
 
 void ChainDetector::Detector(std::atomic<bool>& running, int deviceID, int modeID)
 {
-    cv::VideoCapture cap;
+    std::string windowName{ "Puyo Chain Detector" };
+    cv::namedWindow( windowName, cv::WINDOW_AUTOSIZE );
 
+    cv::VideoCapture cap;
     cap.open(deviceID, modeID);
 
     // Request the capture card to send its feed as 960x540
@@ -26,7 +28,6 @@ void ChainDetector::Detector(std::atomic<bool>& running, int deviceID, int modeI
     // Initialize the mats the analysis will need
     cv::Mat input;
 
-    int interval = 0;
     while (running)
     {
         cap >> input;
@@ -37,28 +38,20 @@ void ChainDetector::Detector(std::atomic<bool>& running, int deviceID, int modeI
             break;
         }
 
-//        interval = (interval + 120 + 1) % 120;
-        interval++;
-        if (interval % 60 == 0)
-        {
-            std::cout << "Running..." << interval << '\n';
-        }
+        cv::imshow(windowName, input);
 
-        if (interval > 60 * 20)
+        char c = cv::waitKey(1);
+        if (c == 27)
         {
             running = false;
             break;
         }
-//        cv::imshow(windowName, input);
-
-//        char c = cv::waitKey(1);
-//        if (c == 27)
-//        {
-//            break;
-//        }
-//        else if (cv::getWindowProperty(windowName, cv::WND_PROP_VISIBLE) < 1)
-//        {
-//            break;
-//        }
+        else if (cv::getWindowProperty(windowName, cv::WND_PROP_VISIBLE) < 1)
+        {
+            running = false;
+            break;
+        }
     }
+
+    return;
 }
