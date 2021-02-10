@@ -33,8 +33,12 @@ void sendChainData(tcp::socket socket)
         int x = 0;
         for(;;)
         {
-            // Constantly send a message
-            ws.write(boost::asio::buffer(std::to_string(x)));
+            boost::beast::flat_buffer buffer;
+            ws.read(buffer);
+            std::string message = boost::beast::buffers_to_string(buffer.data());
+            if (message == "puyo") {
+                ws.write(boost::asio::buffer(std::to_string(x)));
+            }
             x++;
         }
     }

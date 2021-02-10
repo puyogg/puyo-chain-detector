@@ -1,16 +1,150 @@
 <html>
+<head>
+<style>
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+#overlay {
+    /* background-color: black; */
+    width: 1920px;
+    height: 1080px;
+}
+
+</style>
+</head>
+
 <body>
-<div id="output"></div>
+<div id="overlay">
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+</div>
+
+<img id="2" src="overlay_images/2.png">
+<img id="3" src="overlay_images/3.png">
+<img id="4" src="overlay_images/4.png">
+<img id="5" src="overlay_images/5.png">
+<img id="6" src="overlay_images/6.png">
+<img id="7" src="overlay_images/7.png">
+<img id="8" src="overlay_images/8.png">
+<img id="9" src="overlay_images/9.png">
+<img id="omg" src="overlay_images/omg.png">
+<img id="red" src="overlay_images/red.png">
+<img id="green" src="overlay_images/green.png">
+<img id="blue" src="overlay_images/blue.png">
+<img id="yellow" src="overlay_images/yellow.png">
+<img id="purple" src="overlay_images/purple.png">
 
 <script>
-globalThis.webSocket = new WebSocket("ws://127.0.0.1:2424");
-globalThis.socketValue = '';
-webSocket.onmessage = (event) => globalThis.socketValue = event.data;
+const port = 2424;
+let webSocket;
 
-setInterval(() => {
-    const outputDiv = document.getElementById("output");
-    outputDiv.innerText += globalThis.socketValue + "\n";
-}, 1000);
+// Canvases
+const overlay = document.getElementById("canvas");
+const ctx = overlay.getContext("2d");
+
+const p1Canvas = document.createElement("canvas");
+p1Canvas.width = 64 * 6;
+p1Canvas.height = 60 * 12;
+const p1Ctx = p1Canvas.getContext("2d");
+
+const p2Canvas = document.createElement("canvas");
+p2Canvas.width = 64 * 6;
+p2Canvas.height = 60 * 12;
+const p2Ctx = p2Canvas.getContext("2d");
+
+const omg = document.getElementById("omg");
+const numbers = [document.createElement("img"), document.createElement("img")];
+const cursors = {
+    red: document.getElementById("red"),
+    green: document.getElementById("green"),
+    blue: document.getElementById("blue"),
+    yellow: document.getElementById("yellow"),
+    purple: document.getElementById("purple"),
+    none: document.createElement("img")
+}
+
+for (let i = 2; i <= 9; i++) {
+    const num = document.getElementById(`${i}`);
+    numbers.push(num);
+}
+for (let i = 10; i <= 47; i++) {
+    numbers.push(omg);
+}
+
+// Sample data
+let chainLengths = [];
+let colors = [];
+const colorList = ["red", "green", "blue", "yellow", "purple"];
+
+function sendRequest() {
+    webSocket.send("puyo");
+    window.requestAnimationFrame(sendRequest);
+}
+
+function drawOverlay(jsonString) {
+    console.log(jsonString);
+
+    const redraw = Math.random() * 60;
+    if (redraw > 2) {
+        return;
+    }
+
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+    p1Ctx.clearRect(0, 0, p1Canvas.width, p1Canvas.height);
+    p2Ctx.clearRect(0, 0, p2Canvas.width, p2Canvas.height);
+
+    chainLengths = [];
+    colors = [];
+    for (let i = 0; i < 72; i++) {
+        chainLengths.push(Math.floor(Math.random() * 15));
+    }
+    for (let i = 0; i < 72; i++) {
+        if (chainLengths[i] > 1) {
+            colors.push(colorList[Math.floor(Math.random() * 5)]);
+        } else {
+            colors.push("none");
+        }
+    }
+
+    for (let i = 0; i < 72; i++) {
+        const x = (i % 6) * 64;
+        const y = Math.floor(i / 6) * 60;
+        p1Ctx.drawImage(cursors[colors[i]], x, y)
+        p1Ctx.drawImage(numbers[chainLengths[i]], x, y);
+        p2Ctx.drawImage(cursors[colors[i]], x, y)
+        p2Ctx.drawImage(numbers[chainLengths[i]], x, y);
+    }
+    ctx.drawImage(p1Canvas, 279, 159);
+    ctx.drawImage(p2Canvas, 1256, 159);
+}
+
+function connect(port) {
+    webSocket = new WebSocket(`ws://127.0.0.1:${port}`);
+
+    webSocket.onmessage = (event) => {
+        drawOverlay(event.data);
+    }
+
+    webSocket.onopen = () => {
+        window.requestAnimationFrame(sendRequest);
+    };
+
+    webSocket.onerror = (e) => {
+        console.log("Couldn't connect:");
+        webSocket.close();
+    };
+
+    webSocket.onclose = (e) => {
+        console.log("Connection closed. Reconnecting...", e.reason);
+        setTimeout(() => {
+            connect(port);
+        }, 1000);
+    };
+}
+
+connect(port);
 </script>
 
 </body>
