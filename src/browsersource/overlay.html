@@ -1,0 +1,17 @@
+<html>
+<body>
+<div id="output"></div>
+
+<script>
+globalThis.webSocket = new WebSocket("ws://127.0.0.1:2424");
+globalThis.socketValue = '';
+webSocket.onmessage = (event) => globalThis.socketValue = event.data;
+
+setInterval(() => {
+    const outputDiv = document.getElementById("output");
+    outputDiv.innerText += globalThis.socketValue + "\n";
+}, 1000);
+</script>
+
+</body>
+</html>

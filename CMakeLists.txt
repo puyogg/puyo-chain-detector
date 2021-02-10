@@ -34,7 +34,10 @@ message(STATUS "    version: ${OpenCV_VERSION}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
-include_directories(include)
+# Find Boost
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS date_time REQUIRED)
+message(STATUS "Boost version: ${Boost_VERSION}")
 
 # Generate library targets: chainsim, detector
 # Executable target: PuyoChainDetector

@@ -30,24 +30,7 @@ public:
 
 private slots:
     void on_startPreview_clicked();
-
-    void on_gameField_x_valueChanged(int arg1);
-    void on_gameField_y_valueChanged(int arg1);
-    void on_gameField_width_valueChanged(int arg1);
-    void on_gameField_height_valueChanged(int arg1);
-    void on_nextWindow_x_valueChanged(int arg1);
-    void on_nextWindow_y_valueChanged(int arg1);
-    void on_nextWindow_width_valueChanged(int arg1);
-    void on_nextWindow_height_valueChanged(int arg1);
-    void on_score_x_valueChanged(int arg1);
-    void on_score_y_valueChanged(int arg1);
-    void on_score_width_valueChanged(int arg1);
-    void on_score_height_valueChanged(int arg1);
-
-    void on_currentPlayer_currentIndexChanged(int index);
-
     void on_saveSettings_clicked();
-
     void on_initializeDetector_clicked();
 
 private:
@@ -55,24 +38,6 @@ private:
 
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
-
-    struct PlayerData {
-        int gameField_x;
-        int gameField_y;
-        int gameField_width;
-        int gameField_height;
-        int nextWindow_x;
-        int nextWindow_y;
-        int nextWindow_width;
-        int nextWindow_height;
-        int score_x;
-        int score_y;
-        int score_width;
-        int score_height;
-    };
-    std::array<PlayerData, 2> player;
-
-    int currentPlayer;
 
     void drawBoundingBoxes(cv::Mat &frame);
     void setDataToFields(int p);
