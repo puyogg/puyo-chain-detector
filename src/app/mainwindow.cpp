@@ -5,7 +5,6 @@
 #include <QMessageBox>
 #include "detector/Detector.hpp"
 #include <thread>
-#include <atomic>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -13,8 +12,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Set up preview window
     ui->graphicsView->setScene(new QGraphicsScene(this));
     ui->graphicsView->scene()->addItem(&pixmap);
+
+    // Thread Status
+    m_threadStatus = ThreadStatus{ false, false, true, true };
 
     // Load JSON Data
     loadSettingsJSON();
@@ -83,74 +86,63 @@ void MainWindow::on_saveSettings_clicked()
     QMessageBox::information(this, "Saved JSON", "Saved data to detectionsettings.json");
 }
 
-void MainWindow::on_startPreview_clicked()
+void MainWindow::closeEvent(QCloseEvent* event)
 {
-    // If the video capture is already open, then the user
-    // is clicking the button to stop it.
-    if (video.isOpened()) {
-        ui->startPreview->setText("Start");
-        video.release();
+    m_threadStatus.runDetector = false;
+    m_threadStatus.runWebsocket = false;
+
+    // Block until the detector closes
+    while(!m_threadStatus.detectorClosed)
+    {
+    }
+
+    event->accept();
+}
+
+void MainWindow::on_startCapture_clicked()
+{
+    // If the detection and websocket threads are running, close them.
+    if (m_threadStatus.runDetector || m_threadStatus.runWebsocket)
+    {
+        m_threadStatus.runDetector = false;
+        m_threadStatus.runWebsocket = false;
+        // Block until detector is closed
+        while(!m_threadStatus.detectorClosed)
+        {
+        }
+        ui->startCapture->setText("Start Capture");
         return;
     }
 
-    // Check if the user gave an ID integer, or a path string.
-    bool isCameraID;
-    int cameraIndex = ui->cameraValue->text().toInt(&isCameraID);
+    // Otherwise, pass data to chain detector method and start a new thread.
+    m_threadStatus.runDetector = true;
+    m_threadStatus.runWebsocket = true;
+    ui->startCapture->setText("Stop Capture");
 
-    if(isCameraID) {
-        // Use the cameraIndex to open the video feed,
-        // and also record whether it was successful or not.
-        bool openSuccessful = video.open(cameraIndex, cv::CAP_ANY);
-        if (!openSuccessful) {
-            QMessageBox::critical(this, "Capture Error", "Enter the correct index <br> or make sure the video capture isn't being used by another program.");
-            return;
-        }
-    }
+    int deviceID = ui->cameraValue->text().toInt();
+    int modeID = static_cast<int>(cv::CAP_DSHOW);
+    std::thread detectThread(ChainDetector::Detector, std::ref(m_threadStatus), std::ref(m_qtPreview), deviceID, modeID);
+    detectThread.detach();
 
-    // Set video to default to 1920x1080
-    video.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
-    video.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-
-    ui->startPreview->setText("Stop");
-
-    cv::Mat frame;
-    while(video.isOpened()) {
-        video >> frame;
-        cv::resize(frame, frame, cv::Size(480, 270), 0, 0, cv::INTER_LINEAR);
-//        drawBoundingBoxes(frame);
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-        if (!frame.empty()) {
-            QImage qimg(frame.data,
-                        frame.cols,
-                        frame.rows,
-                        frame.step,
+    cv::Mat qtPreviewRGB;
+    while(m_threadStatus.runDetector) {
+        if (!m_qtPreview.empty()) {
+            cv::cvtColor(m_qtPreview, qtPreviewRGB, cv::COLOR_BGR2RGB);
+            QImage qimg(qtPreviewRGB.data,
+                        qtPreviewRGB.cols,
+                        qtPreviewRGB.rows,
+                        qtPreviewRGB.step,
                         QImage::Format_RGB888);
             pixmap.setPixmap(QPixmap::fromImage(qimg));
             ui->graphicsView->fitInView(&pixmap, Qt::KeepAspectRatio);
-
         }
         qApp->processEvents();
     }
-
-    video.release();
-    ui->startPreview->setText("Start");
-}
-
-// There's probably a more efficient way to map all these events but
-// I'm too tired to figure it out right now lol.
-void MainWindow::on_initializeDetector_clicked()
-{
-    // http://www.cplusplus.com/forum/general/190480/
-    int deviceID = ui->cameraValue->text().toInt();
-    int modeID = static_cast<int>(cv::CAP_ANY);
-    std::atomic<bool> running { true };
-    std::thread detectThread(ChainDetector::Detector, std::ref(running), deviceID, modeID);
-
-    while (running)
+    m_threadStatus.runDetector = false;
+    m_threadStatus.runWebsocket = false;
+    // Block until detector is closed
+    while(!m_threadStatus.detectorClosed)
     {
-        qApp->processEvents();
     }
-
-    detectThread.join();
-    std::cout << "Finished detection thread.\n";
+    ui->startCapture->setText("Start Capture");
 }

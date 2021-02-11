@@ -1,6 +1,7 @@
 add_executable(PuyoChainDetector
     main.cpp
     mainwindow.cpp
+    threading.hpp
     mainwindow.hpp
     mainwindow.ui
     detectionsettings.json

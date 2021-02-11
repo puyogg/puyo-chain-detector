@@ -1,12 +1,14 @@
-add_executable(browsersource
-    main.cpp
+add_library(browsersource STATIC
     server.cpp
+    server.hpp
     overlay.html
 )
 
 target_include_directories(browsersource
     PUBLIC ${Boost_INCLUDE_DIRS}
+    PUBLIC ${PROJECT_SOURCE_DIR}/src
 )
+
 
 target_link_libraries(browsersource
     PUBLIC ${Boost_LIBRARIES}

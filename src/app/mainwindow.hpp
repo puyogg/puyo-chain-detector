@@ -15,6 +15,9 @@
 #include <json/json.h>
 #include <array>
 #include <fstream>
+#include <atomic>
+
+#include "threading.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,16 +31,20 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent* event);
+
 private slots:
-    void on_startPreview_clicked();
+    void on_startCapture_clicked();
     void on_saveSettings_clicked();
-    void on_initializeDetector_clicked();
 
 private:
     Ui::MainWindow *ui;
 
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
+    cv::Mat m_qtPreview;
+    ThreadStatus m_threadStatus;
 
     void drawBoundingBoxes(cv::Mat &frame);
     void setDataToFields(int p);

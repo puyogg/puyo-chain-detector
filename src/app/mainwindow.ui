@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>480</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,17 +23,7 @@ Try out numbers 0 to 10.</string>
       </property>
      </widget>
     </item>
-    <item row="11" column="0" colspan="3">
-     <widget class="QPushButton" name="initializeDetector">
-      <property name="text">
-       <string>Initialize BrowserSource</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="2">
-     <widget class="QLineEdit" name="cameraValue"/>
-    </item>
-    <item row="3" column="0" colspan="3">
+    <item row="3" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QPushButton" name="saveSettings">
@@ -43,32 +33,25 @@ Try out numbers 0 to 10.</string>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="startPreview">
+       <widget class="QPushButton" name="startCapture">
         <property name="text">
-         <string>Start Preview</string>
+         <string>Start Capture</string>
         </property>
        </widget>
       </item>
      </layout>
     </item>
-    <item row="1" column="0" colspan="3">
+    <item row="1" column="0" colspan="2">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
-    <item row="8" column="2">
-     <widget class="QComboBox" name="captureMethod">
-      <item>
-       <property name="text">
-        <string>DirectShow</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Any</string>
-       </property>
-      </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Capture Method</string>
+      </property>
      </widget>
     </item>
-    <item row="10" column="2">
+    <item row="10" column="1">
      <widget class="QComboBox" name="gamePreset">
       <property name="toolTip">
        <string>The field layouts have slightly different positioning between games.</string>
@@ -85,6 +68,20 @@ Try out numbers 0 to 10.</string>
       </item>
      </widget>
     </item>
+    <item row="8" column="1">
+     <widget class="QComboBox" name="captureMethod">
+      <item>
+       <property name="text">
+        <string>DirectShow</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Any</string>
+       </property>
+      </item>
+     </widget>
+    </item>
     <item row="10" column="0">
      <widget class="QLabel" name="label_3">
       <property name="text">
@@ -92,10 +89,20 @@ Try out numbers 0 to 10.</string>
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
-     <widget class="QLabel" name="label_2">
+    <item row="9" column="1">
+     <widget class="QLineEdit" name="cameraValue"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Capture Method</string>
+       <string>Enable Preview</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QCheckBox" name="enablePreview">
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </item>
@@ -107,7 +114,7 @@ Try out numbers 0 to 10.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>480</width>
      <height>21</height>
     </rect>
    </property>
