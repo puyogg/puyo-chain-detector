@@ -15,7 +15,7 @@ NextTracker::NextTracker(int player, CaptureSettings& captureSettings)
     m_player = player;
     m_settings = &captureSettings;
     m_cooldown = 0;
-    m_maxCooldown = 12;
+    m_maxCooldown = 6;
 }
 
 bool NextTracker::isMoving(cv::Mat& frame)

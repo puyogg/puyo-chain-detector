@@ -30,8 +30,15 @@ void PlayerTracker::update(cv::Mat &frame)
 {
     cv::Rect& fieldRect = m_settings->player.at(m_player).fieldRect;
 
+    // Check if the score window is implying that a chain
+    // is popping. In that case, reset the fields
+    if (m_scoreTracker.isPopping(frame))
+    {
+        m_lengthField.reset();
+        m_colorField.reset();
+    }
     // Check if next window is moving
-    if (m_nextTracker.isMoving(frame))
+    else if (m_nextTracker.isMoving(frame))
     {
         // Crop the field from the frame
         cv::Mat fieldMat = frame(fieldRect);
@@ -43,38 +50,34 @@ void PlayerTracker::update(cv::Mat &frame)
         Chainsim::PuyoField puyoField;
         puyoField.set(fieldColors);
 
-        // Try out chains
-        CursorData cursorData = puyoField.searchForChains();
-        //    std::cout << "Found " << m_cursorData.size() << " chains to try.\n";
-        //    for (auto& s : m_cursorData)
-        //    {
-        //        auto [pos, color, length] = s;
-        //        std::cout << pos.r << ", " << pos.c << ", " << static_cast<int>(color) << ", " << length << ";\n";
-        //    }
-
-        // Reset puyoField and lengthField
-        m_lengthField.reset();
-        m_colorField.reset();
-
-        // Set the cursorData into the fields
-        for (auto& data: cursorData)
+        // If this field is already popping, ignore it
+        auto [hasPops, popCounts, popColors, popPositions] = puyoField.checkPops();
+        if (!hasPops)
         {
-            auto [pos, color, length] = data;
-            if (length > m_lengthField.get(pos.r, pos.c))
-            {
-                m_lengthField.set(pos.r, pos.c, length);
-                m_colorField.set(pos.r, pos.c, color);
-            }
-        }
-    }
-    else
-    {
-        // Check if the score window is implying that a chain
-        // is popping. In that case, reset the fields
-        if (m_scoreTracker.isPopping(frame))
-        {
+            // Try out chains
+            CursorData cursorData = puyoField.searchForChains();
+    //        std::cout << "Found " << cursorData.size() << " chains to try.\n";
+    //        for (auto& s : cursorData)
+    //        {
+    //            auto [pos, color, length] = s;
+    //            std::cout << pos.r << ", " << pos.c << ", " << static_cast<int>(color) << ", " << length << ";\n";
+    //        }
+    //        std::cout << "\n";
+
+            // Reset puyoField and lengthField
             m_lengthField.reset();
             m_colorField.reset();
+
+            // Set the cursorData into the fields
+            for (auto& data: cursorData)
+            {
+                auto [pos, color, length] = data;
+                if (length > m_lengthField.get(pos.r, pos.c))
+                {
+                    m_lengthField.set(pos.r, pos.c, length);
+                    m_colorField.set(pos.r, pos.c, color);
+                }
+            }
         }
     }
 

@@ -190,6 +190,8 @@ void MainWindow::updatePixmap()
         m_threadStatus.captureFailed = false; // reset
         QMessageBox::warning(this, "Video Error", "The chain detector couldn't open your capture device.\nTry a different device id.");
         timer->stop();
+        m_threadStatus.runDetector = false;
+        m_threadStatus.runWebsocket = false;
         ui->cameraValue->setEnabled(true);
         ui->captureMethod->setEnabled(true);
         ui->startCapture->setText("Start Chain Detector");
