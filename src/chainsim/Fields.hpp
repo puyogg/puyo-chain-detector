@@ -34,6 +34,18 @@ public:
     void reset();
 };
 
+class IntField : public Field<int>
+{
+private:
+    using Field::m_rows;
+    using Field::m_cols;
+public:
+    IntField();
+    IntField(int rows, int cols);
+
+    void reset();
+};
+
 class PuyoField : public Field<Color>
 {
 private:

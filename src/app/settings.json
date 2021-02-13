@@ -1,7 +1,9 @@
 {
     "mode": 700,
-    "device": 1,
+    "device": 0,
     "preset": "PPT2",
+    "preview": true,
+    "port": 2424,
     "region": {
         "PPT2": {
             "player": [

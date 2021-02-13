@@ -57,12 +57,13 @@ const p2Ctx = p2Canvas.getContext("2d");
 const omg = document.getElementById("omg");
 const numbers = [document.createElement("img"), document.createElement("img")];
 const cursors = {
-    red: document.getElementById("red"),
-    green: document.getElementById("green"),
-    blue: document.getElementById("blue"),
-    yellow: document.getElementById("yellow"),
-    purple: document.getElementById("purple"),
-    none: document.createElement("img")
+    2: document.getElementById("red"),
+    3: document.getElementById("green"),
+    4: document.getElementById("blue"),
+    5: document.getElementById("yellow"),
+    6: document.getElementById("purple"),
+    0: document.createElement("img"),
+    1: document.createElement("img")
 }
 
 for (let i = 2; i <= 9; i++) {
@@ -74,8 +75,6 @@ for (let i = 10; i <= 47; i++) {
 }
 
 // Sample data
-let chainLengths = [];
-let colors = [];
 const colorList = ["red", "green", "blue", "yellow", "purple"];
 
 function sendRequest() {
@@ -84,40 +83,26 @@ function sendRequest() {
 }
 
 function drawOverlay(jsonString) {
-    console.log(jsonString);
-
-    const redraw = Math.random() * 60;
-    if (redraw > 2) {
-        return;
-    }
+    const data = JSON.parse(jsonString);
+    const p1 = data[0];
+    const p2 = data[1];
 
     ctx.clearRect(0, 0, overlay.width, overlay.height);
     p1Ctx.clearRect(0, 0, p1Canvas.width, p1Canvas.height);
     p2Ctx.clearRect(0, 0, p2Canvas.width, p2Canvas.height);
 
-    chainLengths = [];
-    colors = [];
-    for (let i = 0; i < 72; i++) {
-        chainLengths.push(Math.floor(Math.random() * 15));
-    }
-    for (let i = 0; i < 72; i++) {
-        if (chainLengths[i] > 1) {
-            colors.push(colorList[Math.floor(Math.random() * 5)]);
-        } else {
-            colors.push("none");
-        }
-    }
-
+    // Oops. It's kind of stupid how I have a second level of JSON parsing to do.
+    // In my C++ code, I converted the data to a string twice.
     for (let i = 0; i < 72; i++) {
         const x = (i % 6) * 64;
         const y = Math.floor(i / 6) * 60;
-        p1Ctx.drawImage(cursors[colors[i]], x, y)
-        p1Ctx.drawImage(numbers[chainLengths[i]], x, y);
-        p2Ctx.drawImage(cursors[colors[i]], x, y)
-        p2Ctx.drawImage(numbers[chainLengths[i]], x, y);
+        p1Ctx.drawImage(cursors[p1["colors"][i]], x, y)
+        p1Ctx.drawImage(numbers[p1["lengths"][i]], x, y);
+        p2Ctx.drawImage(cursors[p2["colors"][i]], x, y)
+        p2Ctx.drawImage(numbers[p2["lengths"][i]], x, y);
     }
-    ctx.drawImage(p1Canvas, 279, 159);
-    ctx.drawImage(p2Canvas, 1256, 159);
+    ctx.drawImage(p1Canvas, 279, 159 - 60);
+    ctx.drawImage(p2Canvas, 1256, 159 - 60);
 }
 
 function connect(port) {
@@ -138,6 +123,7 @@ function connect(port) {
 
     webSocket.onclose = (e) => {
         console.log("Connection closed. Reconnecting...", e.reason);
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
         setTimeout(() => {
             connect(port);
         }, 1000);

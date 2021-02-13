@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.19)
 
 project(puyo-chain-detector LANGUAGES CXX)
 
@@ -10,6 +10,14 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+## How do I get this block to only run on the release build?
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+if(MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+#  set(Boost_USE_STATIC_RUNTIME ON)
+endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -36,6 +44,8 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 # Find Boost
 set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost COMPONENTS date_time REQUIRED)
 message(STATUS "Boost version: ${Boost_VERSION}")
 

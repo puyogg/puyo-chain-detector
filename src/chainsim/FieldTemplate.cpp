@@ -31,7 +31,7 @@ void Field<T>::set(std::vector<T>& vector1d)
 {
     for (int r = 0; r < m_rows; r++)
     {
-        for (int c = 0; c < m_rows; c++)
+        for (int c = 0; c < m_cols; c++)
         {
             set(r, c, vector1d[r * m_cols + c]);
         }
@@ -85,6 +85,7 @@ void Field<T>::copyTo(Field<T>& field)
 
 // Explicit template instantiation
 template class Field<bool>;
+template class Field<int>;
 template class Field<Color>;
 
 

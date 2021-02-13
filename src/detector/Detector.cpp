@@ -2,11 +2,17 @@
 //#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include "Detector.hpp"
+#include <opencv2/dnn.hpp>
 #include <iostream>
 #include <string>
 #include <thread>
-#include "browsersource/server.hpp"
+#include <array>
+
+#include "Detector.hpp"
+#include "Settings.hpp"
+#include "PlayerTracker.hpp"
+
+#include "websocket/server.hpp"
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -18,37 +24,57 @@ namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 
-void ChainDetector::Detector(ThreadStatus& threadStatus, cv::Mat& qtPreview, int deviceID, int modeID)
+void ChainDetector::Detector(ThreadStatus& threadStatus, cv::Mat& qtPreview, CaptureSettings& captureSettings)
 {
     // Toggle thread status
     threadStatus.detectorClosed = false;
 
     cv::VideoCapture cap;
-    cap.open(deviceID, modeID);
+    cap.open(captureSettings.deviceID, captureSettings.mode);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, 270);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 480);
 
     if (!cap.isOpened())
     {
         std::cerr << "Couldn't open the capture feed.\n";
+        threadStatus.captureFailed = true;
+        threadStatus.detectorClosed = true;
+        threadStatus.runDetector = false;
         return;
     }
 
-    // Initialize data structures to share with the websocket service
+    // Load MLP
+    cv::dnn::Net net = cv::dnn::readNetFromONNX("puyo-mlp-gpu.onnx");
+
+    // Set up player data. The Chain Detector writes to it; the websocket threads read from it
+    PlayerTracker p0{ 0, net, captureSettings };
+    PlayerTracker p1{ 1, net, captureSettings };
+    std::array<BrowserSource::DataFields, 2> playerData;
+    playerData.at(0) = BrowserSource::DataFields{ &(p0.m_lengthField), &(p0.m_colorField) };
+    playerData.at(1) = BrowserSource::DataFields{ &(p1.m_lengthField), &(p1.m_colorField) };
 
     // Spawn a websocket service in another thread
-    std::thread websocketThread = std::thread(&BrowserSource::waitForConnection, std::ref(threadStatus));
+    std::thread websocketThread = std::thread(&BrowserSource::waitForConnection, std::ref(threadStatus), std::ref(playerData) );
 
     // Initialize the mats the analysis will need
     cv::Mat frame;
 
     // Detection loop
+    std::cout << "Beginning Detection loop...." << std::endl;
     while (threadStatus.runDetector)
     {
         // Receive current frame from capture device and resize it.
         cap >> frame;
         cv::resize(frame, frame, cv::Size(480, 270), 0, 0, cv::INTER_LINEAR);
-        frame.copyTo(qtPreview);
+
+        p0.update(frame);
+        p1.update(frame);
+
+        // Preview to show in the Qt App
+        if (captureSettings.enablePreview)
+        {
+            frame.copyTo(qtPreview);
+        }
 
         if (frame.empty())
         {

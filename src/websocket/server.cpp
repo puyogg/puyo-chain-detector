@@ -7,15 +7,21 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <json/json.h>
 
 namespace websocket = boost::beast::websocket;
 using tcp = boost::asio::ip::tcp;
 
-void BrowserSource::sendChainData(ThreadStatus &threadStatus, tcp::socket socket)
+void BrowserSource::sendChainData(ThreadStatus& threadStatus, std::array<DataFields, 2>& playerData, tcp::socket socket)
 {
     try
     {
         std::cout << "Launched a chain data thread." << std::endl;
+
+        // Allocate a Json::StreamWriterBuilder for later
+        Json::StreamWriterBuilder builder;
+        builder["indentation"] = "";
+
         // Construct the stream by moving in the socket
         websocket::stream<tcp::socket> ws{std::move(socket)};
 
@@ -30,16 +36,34 @@ void BrowserSource::sendChainData(ThreadStatus &threadStatus, tcp::socket socket
 
         // TODO: Instead of sending a message constantly, have the client in overlay.html make requests
         // at 60 FPS using requestAnimationFrame() loops.
-        int x = 0;
         while (threadStatus.runWebsocket) {
             boost::beast::flat_buffer buffer;
             ws.read(buffer);
             std::string message = boost::beast::buffers_to_string(buffer.data());
             if (message == "puyo")
             {
-                ws.write(boost::asio::buffer(std::to_string(x)));
+                Json::Value cursorData(Json::arrayValue);
+
+                int arrayLength = playerData.at(0).colorField->m_data.size();
+                for (int i = 0; i < 2; i++)
+                {
+                    Json::Value p;
+                    Json::Value length(Json::arrayValue);
+                    Json::Value colors(Json::arrayValue);
+                    for (int j = 0; j < arrayLength; j++)
+                    {
+                        length.append(playerData.at(i).lengthField->m_data.at(j));
+                        colors.append(static_cast<int>(playerData.at(i).colorField->m_data.at(j)));
+                    }
+                    p["lengths"] = length;
+                    p["colors"] = colors;
+                    cursorData.append(p);
+                }
+
+                std::string output = Json::writeString(builder, cursorData);
+
+                ws.write(boost::asio::buffer(output));
             }
-            x++;
         }
 
         return;
@@ -58,7 +82,7 @@ void BrowserSource::sendChainData(ThreadStatus &threadStatus, tcp::socket socket
     }
 }
 
-void BrowserSource::waitForConnection(ThreadStatus &threadStatus)
+void BrowserSource::waitForConnection(ThreadStatus& threadStatus, std::array<DataFields, 2>& playerData)
 {
     // Track a list of all opened socket threads
     threadStatus.websocketClosed = false;
@@ -85,7 +109,7 @@ void BrowserSource::waitForConnection(ThreadStatus &threadStatus)
             acceptor.accept(socket);
 
             // Launch service in another thread and transfer ownership of the socket
-            std::thread t = std::thread(&sendChainData, std::ref(threadStatus), std::move(socket));
+            std::thread t = std::thread(&sendChainData, std::ref(threadStatus), std::ref(playerData), std::move(socket));
             // Threads are move-only objects.
             socketThreads.push_back(std::move(t));
         }

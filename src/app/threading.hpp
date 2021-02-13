@@ -5,4 +5,6 @@ struct ThreadStatus {
     bool runWebsocket;
     bool detectorClosed;
     bool websocketClosed;
+    bool showPreview;
+    bool captureFailed;
 };

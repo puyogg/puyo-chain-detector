@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QImage>
+#include <QTimer>
 #include <QPixmap>
 #include <QCloseEvent>
 #include <QMessageBox>
@@ -18,6 +19,7 @@
 #include <atomic>
 
 #include "threading.hpp"
+#include "detector/Settings.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -38,8 +40,20 @@ private slots:
     void on_startCapture_clicked();
     void on_saveSettings_clicked();
 
+    void on_gamePreset_currentIndexChanged(int index);
+
+    void on_enablePreview_stateChanged(int arg1);
+
+    void on_cameraValue_textEdited(const QString &arg1);
+
+    void on_captureMethod_currentIndexChanged(int index);
+
+    void updatePixmap();
+
 private:
     Ui::MainWindow *ui;
+
+    std::thread m_detectorThread;
 
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
@@ -52,5 +66,14 @@ private:
 
     void loadSettingsJSON();
     void saveSettingsJSON();
+
+    void setDevice(int deviceID);
+    void setCaptureMode(int mode);
+    void setPresetName(std::string shortName);
+    void setPresetName(int presetIdx);
+
+    ChainDetector::CaptureSettings m_captureSettings;
+
+    QTimer* timer;
 };
 #endif // MAINWINDOW_H
