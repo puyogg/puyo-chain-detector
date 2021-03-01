@@ -50,8 +50,8 @@ void ChainDetector::Detector(ThreadStatus& threadStatus, cv::Mat& qtPreview, Cap
     PlayerTracker p0{ 0, net, captureSettings };
     PlayerTracker p1{ 1, net, captureSettings };
     std::array<BrowserSource::DataFields, 2> playerData;
-    playerData.at(0) = BrowserSource::DataFields{ &(p0.m_lengthField), &(p0.m_colorField) };
-    playerData.at(1) = BrowserSource::DataFields{ &(p1.m_lengthField), &(p1.m_colorField) };
+    playerData.at(0) = BrowserSource::DataFields{ &(p0.m_lengthField), &(p0.m_popColors), &(p0.m_puyoField) };
+    playerData.at(1) = BrowserSource::DataFields{ &(p1.m_lengthField), &(p1.m_popColors), &(p1.m_puyoField) };
 
     // Spawn a websocket service in another thread
     std::thread websocketThread = std::thread(&BrowserSource::waitForConnection, std::ref(threadStatus), std::ref(playerData) );

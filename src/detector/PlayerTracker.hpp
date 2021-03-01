@@ -25,7 +25,8 @@ public:
     void update(cv::Mat& frame);
     std::vector<Chainsim::Color> readFieldColors(cv::Mat& fieldMat);
     Chainsim::IntField m_lengthField;
-    Chainsim::PuyoField m_colorField;
+    Chainsim::PuyoField m_popColors;
+    Chainsim::PuyoField m_puyoField;
 };
 
 } // end Chain Detector Namespace

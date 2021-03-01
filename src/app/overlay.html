@@ -38,6 +38,8 @@ html, body {
 
 <script>
 const port = 2424;
+
+/** @type {WebSocket} */
 let webSocket;
 
 // Canvases
@@ -79,7 +81,9 @@ const colorList = ["red", "green", "blue", "yellow", "purple"];
 
 function sendRequest() {
     webSocket.send("puyo");
-    window.requestAnimationFrame(sendRequest);
+    if (webSocket.readyState === WebSocket.OPEN) {
+        window.requestAnimationFrame(sendRequest);
+    }
 }
 
 function drawOverlay(jsonString) {
@@ -96,9 +100,9 @@ function drawOverlay(jsonString) {
     for (let i = 0; i < 72; i++) {
         const x = (i % 6) * 64;
         const y = Math.floor(i / 6) * 60;
-        p1Ctx.drawImage(cursors[p1["colors"][i]], x, y)
+        p1Ctx.drawImage(cursors[p1["popColors"][i]], x, y)
         p1Ctx.drawImage(numbers[p1["lengths"][i]], x, y);
-        p2Ctx.drawImage(cursors[p2["colors"][i]], x, y)
+        p2Ctx.drawImage(cursors[p2["popColors"][i]], x, y)
         p2Ctx.drawImage(numbers[p2["lengths"][i]], x, y);
     }
     ctx.drawImage(p1Canvas, 279, 159 - 60);

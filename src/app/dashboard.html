@@ -1,0 +1,264 @@
+<html>
+<head>
+<style>
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    /* background-color: gray; */
+    display: grid;
+    position: relative;
+    grid-template-columns: 15% 35% 35% 15%;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-areas:
+        "p0sim0 p0sim3 p1sim3 p1sim0"
+        "p0sim1 p0sim3 p1sim3 p1sim1"
+        "p0sim2 p0sim3 p1sim3 p1sim2";
+}
+
+#app > a {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#d0-sim0 { grid-area: p0sim0; display: block; /* background-color: blue */ }
+#d0-sim1 { grid-area: p0sim1; display: block; /* background-color: red */ }
+#d0-sim2 { grid-area: p0sim2; display: block; /* background-color: green */ }
+#d0-sim3 { grid-area: p0sim3; display: block; /* background-color: purple */ }
+#d1-sim0 { grid-area: p1sim0; display: block; /* background-color: blue */ }
+#d1-sim1 { grid-area: p1sim1; display: block; /* background-color: red */ }
+#d1-sim2 { grid-area: p1sim2; display: block; /* background-color: green */ }
+#d1-sim3 { grid-area: p1sim3; display: block; /* background-color: magenta */ }
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<a id="d0-sim0" target="_blank" rel="noopener noreferrer"></a>
+<a id="d0-sim1" target="_blank" rel="noopener noreferrer"></a>
+<a id="d0-sim2" target="_blank" rel="noopener noreferrer"></a>
+<a id="d0-sim3" target="_blank" rel="noopener noreferrer"></a>
+
+<a id="d1-sim0" target="_blank" rel="noopener noreferrer"></a>
+<a id="d1-sim1" target="_blank" rel="noopener noreferrer"></a>
+<a id="d1-sim2" target="_blank" rel="noopener noreferrer"></a>
+<a id="d1-sim3" target="_blank" rel="noopener noreferrer"></a>
+</div>
+
+<img crossorigin="anonymous" id="puyo" src="https://i.imgur.com/GfviCBO.png" style="position: absolute; left: -9999">
+
+<script>
+
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+const FIELD_W = 384;
+const FIELD_H = 780;
+const PUYONAME = ["none", "garbage", "red", "green", "blue", "yellow", "purple"]
+
+canvas.width = FIELD_W;
+canvas.height = FIELD_H;
+
+/** @type HTMLAnchorElement[] */
+const p0boxes = [
+    document.getElementById("d0-sim0"),
+    document.getElementById("d0-sim1"),
+    document.getElementById("d0-sim2"),
+    document.getElementById("d0-sim3")
+];
+
+/** @type HTMLAnchorElement[] */
+const p1boxes = [
+    document.getElementById("d1-sim0"),
+    document.getElementById("d1-sim1"),
+    document.getElementById("d1-sim2"),
+    document.getElementById("d1-sim3")
+];
+
+const p0data = [];
+const p1data = [];
+for (const data of [p0data, p1data]) {
+    for (let i = 0; i < 4; i++) {
+        data.push(new Array(78).fill(0));
+    }
+}
+
+const p0links = ["", "", "", ""];
+const p1links = ["", "", "", ""];
+
+/** Setup Puyo sprites */
+// colored puyos
+const puyoSkin = document.getElementById("puyo");
+const sprites = {
+    red: [], green: [], blue: [], yellow: [], purple: [], garbage: []
+}
+
+puyoSkin.onload = () => {
+    console.log("Puyo skin loaded");
+    for (let i = 0; i < 5; i++) {
+        const y = 72 * i;
+        const color = ["red", "green", "blue", "yellow", "purple"][i];
+        for (let x = 0; x < 72 * 16; x += 72) {
+            const puyo = document.createElement("canvas");
+            const pCtx = puyo.getContext("2d");
+            pCtx.drawImage(puyoSkin, x, y, 64, 60, 0, 0, 64, 60);
+            sprites[color].push(puyo);
+        }
+    }
+    // garbage puyos
+    {
+        const puyo = document.createElement("canvas");
+        const pCtx = puyo.getContext("2d");
+        pCtx.drawImage(puyoSkin, 18 * 72, 72, 64, 60, 0, 0, 64, 60);
+        sprites["garbage"].push(puyo);
+    }
+
+    // Hoisted function. Only start websocket server after puyo skin loaded
+    connect(2424);
+}
+
+/** Helper functions */
+
+function arraysEqual(array1, array2) {
+    if (array1.length !== array2.length) return false;
+    for (let i = 0; i < array1.length; i++) {
+        if (array1[i] !== array2[i]) return false;
+    }
+    return true;
+}
+
+/**
+ * @param {number[]} field1d
+ */
+function getFieldBase64(field1d) {
+    ctx.clearRect(0, 0, FIELD_W, FIELD_H);
+    for (let y = 0; y < 13; y++) {
+        for (let x = 0; x < 6; x++) {
+            const puyo = field1d[y * 6 + x];
+            const name = PUYONAME[puyo];
+            if (puyo === 0) {
+                continue;
+            } else if (puyo === 1) { //garbage
+                ctx.drawImage(sprites[name][0], 0, 0, 64, 60, x * 64, y * 60, 64, 60);
+            } else if (puyo >= 2 && puyo <= 6) { // if puyo is colored
+                let spriteInd = 0;
+                if (y < 12 && puyo === field1d[(y + 1) * 6 + x]) spriteInd += 1;
+                if (y > 1 && puyo === field1d[(y - 1) * 6 + x]) spriteInd += 2;
+                if (x < 5 && puyo === field1d[y * 6 + (x + 1)]) spriteInd += 4;
+                if (x > 0 && puyo === field1d[y * 6 + (x - 1)]) spriteInd += 8;
+
+                ctx.drawImage(sprites[name][spriteInd], 0, 0, 64, 60, x * 64, y * 60, 64, 60);
+            }
+        }
+    }
+
+    return canvas.toDataURL();
+}
+
+const PNMap = {
+    0: "0",
+    1: "1",
+    2: "4",
+    3: "7",
+    4: "5",
+    5: "6",
+    6: "8"
+}
+/**
+ * @param {number[]} field1d
+ * @returns {string} link
+ */
+function getPuyoNexusLink(field1d) {
+    let link = "https://puyonexus.com/chainsim/?w=6&h=12&chain=";
+
+    for (let i = 0; i < field1d.length; i++) {
+        link += PNMap[field1d[i]];
+    }
+    return link
+}
+
+/**
+ * @param {HTMLAnchorElement[]} boxes
+ * @param {number[][]} data
+ * @param {string[]} links
+ * @param {number[]} newField
+ */
+function updateImages(boxes, data, links, newField) {
+    // don't need to update the 4 images if the new field is the
+    // same as the latest one.
+    if (arraysEqual(data[data.length - 1], newField)) return;
+    
+    // If they're different, shift the queue.
+    data.shift();
+    data.push(newField);
+    links.shift();
+    links.push(getPuyoNexusLink(newField));
+
+    // Generate each field and update boxes
+    for (let i = 0; i < 4; i++) {
+        const dataURL = getFieldBase64(data[i]);
+        boxes[i].style.backgroundImage = `url(${dataURL})`;
+        boxes[i].href = links[i];
+    }
+}
+
+function sendRequest() {
+    webSocket.send("puyo");
+    if (webSocket.readyState === WebSocket.OPEN) {
+        window.requestAnimationFrame(sendRequest);
+    }
+}
+
+
+function connect(port) {
+    webSocket = new WebSocket(`ws://127.0.0.1:${port}`);
+
+    webSocket.onmessage = (event) => {
+        // drawOverlay(event.data);
+        const data = JSON.parse(event.data);
+
+        const p0 = data[0];
+        const p1 = data[1];
+
+        // Generate random puyos for testing purposes.
+        // const p0 = {};
+        // p0["colors"] = [];
+        // for (let i = 0; i < 78; i++) {
+        //     p0["colors"].push(Math.floor(Math.random() * 7));
+        // }
+
+        updateImages(p0boxes, p0data, p0links, p0["field"]);
+        updateImages(p1boxes, p1data, p1links, p1["field"]);
+    }
+
+    webSocket.onopen = () => {
+        window.requestAnimationFrame(sendRequest);
+    };
+
+    webSocket.onerror = (e) => {
+        console.log("Couldn't connect:");
+        webSocket.close();
+    };
+
+    webSocket.onclose = (e) => {
+        console.log("Connection closed. Reconnecting...", e.reason);
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        setTimeout(() => {
+            connect(port);
+        }, 1000);
+    };
+}
+
+</script>
+</div>
+
+</body>
+</html>

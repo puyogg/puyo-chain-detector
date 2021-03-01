@@ -44,19 +44,22 @@ void BrowserSource::sendChainData(ThreadStatus& threadStatus, std::array<DataFie
             {
                 Json::Value cursorData(Json::arrayValue);
 
-                int arrayLength = playerData.at(0).colorField->m_data.size();
+                int arrayLength = playerData.at(0).popField->m_data.size();
                 for (int i = 0; i < 2; i++)
                 {
                     Json::Value p;
                     Json::Value length(Json::arrayValue);
                     Json::Value colors(Json::arrayValue);
+                    Json::Value field(Json::arrayValue);
                     for (int j = 0; j < arrayLength; j++)
                     {
                         length.append(playerData.at(i).lengthField->m_data.at(j));
-                        colors.append(static_cast<int>(playerData.at(i).colorField->m_data.at(j)));
+                        colors.append(static_cast<int>(playerData.at(i).popField->m_data.at(j)));
+                        field.append(static_cast<int>(playerData.at(i).puyoField->m_data.at(j)));
                     }
                     p["lengths"] = length;
-                    p["colors"] = colors;
+                    p["popColors"] = colors;
+                    p["field"] = field;
                     cursorData.append(p);
                 }
 

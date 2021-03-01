@@ -11,7 +11,8 @@ namespace BrowserSource {
 struct DataFields
 {
     Chainsim::IntField* lengthField;
-    Chainsim::PuyoField* colorField;
+    Chainsim::PuyoField* popField;
+    Chainsim::PuyoField* puyoField;
 };
 
 namespace websocket = boost::beast::websocket;

@@ -35,7 +35,7 @@ void PlayerTracker::update(cv::Mat &frame)
     if (m_scoreTracker.isPopping(frame))
     {
         m_lengthField.reset();
-        m_colorField.reset();
+        m_popColors.reset();
     }
     // Check if next window is moving
     else if (m_nextTracker.isMoving(frame))
@@ -49,6 +49,7 @@ void PlayerTracker::update(cv::Mat &frame)
         std::vector<Chainsim::Color> fieldColors = readFieldColors(fieldMat);
         Chainsim::PuyoField puyoField;
         puyoField.set(fieldColors);
+        puyoField.copyTo(m_puyoField);
 
         // If this field is already popping, ignore it
         auto [hasPops, popCounts, popColors, popPositions] = puyoField.checkPops();
@@ -66,7 +67,7 @@ void PlayerTracker::update(cv::Mat &frame)
 
             // Reset puyoField and lengthField
             m_lengthField.reset();
-            m_colorField.reset();
+            m_popColors.reset();
 
             // Set the cursorData into the fields
             for (auto& data: cursorData)
@@ -75,7 +76,7 @@ void PlayerTracker::update(cv::Mat &frame)
                 if (length > m_lengthField.get(pos.r, pos.c))
                 {
                     m_lengthField.set(pos.r, pos.c, length);
-                    m_colorField.set(pos.r, pos.c, color);
+                    m_popColors.set(pos.r, pos.c, color);
                 }
             }
         }
