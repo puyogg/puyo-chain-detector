@@ -1,0 +1,7 @@
+{
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "files.autoSave": "afterDelay",
+        "editor.formatOnSave": true
+    }
+}

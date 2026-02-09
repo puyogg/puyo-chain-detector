@@ -1,0 +1,5 @@
+[tools]
+rust = { version = "1.93" }
+git-lfs = "3.7"
+node = "24"
+pnpm = "10"
